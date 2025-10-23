@@ -1,0 +1,100 @@
+{# Modal Container #}
+<div id="editVenueModal"
+     class="hidden fixed inset-0 z-50 w-full flex items-start justify-center p-4 sm:p-6 md:p-10 overflow-hidden bg-gray-800 bg-opacity-70 backdrop-blur-sm"
+     role="dialog" aria-modal="true" aria-labelledby="editVenueModal-title">
+
+    {# Modal Content Box #}
+    <div id="editVenueModalContent"
+         class="bg-white rounded-lg shadow-xl w-full max-w-lg transform transition-all duration-300 ease-in-out opacity-0 scale-90 border border-gray-200 flex flex-col my-auto max-h-[90vh]">
+
+        {# Modal Header #}
+        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-gray-200 bg-gray-50 rounded-t-lg sticky top-0 z-10 flex-shrink-0">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2 text-gray-500 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                <h3 id="editVenueModal-title" class="text-lg sm:text-xl font-semibold text-gray-900">
+                    Edit Venue
+                </h3>
+            </div>
+            <button type="button"
+                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 p-1.5 ml-auto inline-flex justify-center items-center"
+                    onclick="hideModal('editVenueModal')"
+                    aria-label="Close modal">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+
+        {# Modal Body (Form) #}
+        <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-grow">
+            <form id="editVenueForm" class="space-y-4" novalidate>
+                {% csrf_token %}
+                {# PENTING: Hidden input untuk ID venue yang diedit #}
+                <input type="hidden" id="edit-venue-id" name="id" value="">
+
+                <div>
+                    <label for="edit-venue-name" class="block text-sm font-medium text-gray-700 mb-1">Venue Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-venue-name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                </div>
+                 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="edit-venue-price" class="block text-sm font-medium text-gray-700 mb-1">Price/Hour (Rp) <span class="text-red-500">*</span></label>
+                        <input type="number" id="edit-venue-price" name="price" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="edit-venue-type" class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+                        <select id="edit-venue-type" name="type" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                            <option value="Indoor">Indoor</option>
+                            <option value="Outdoor">Outdoor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit-venue-city" class="block text-sm font-medium text-gray-700 mb-1">City <span class="text-red-500">*</span></label>
+                    <select id="edit-venue-city" name="city" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                        {% for city in cities %}
+                            <option value="{{ city.name }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="edit-venue-category" class="block text-sm font-medium text-gray-700 mb-1">Category <span class="text-red-500">*</span></label>
+                    <select id="edit-venue-category" name="category" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                         {% for category in categories %}
+                            <option value="{{ category.name }}">{{ category.name }}</option>
+                         {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                   <label for="edit-venue-address" class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+                   <textarea id="edit-venue-address" name="address" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required></textarea>
+                </div>
+                 
+                 <div>
+                     <label for="edit-venue-description" class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                     <textarea id="edit-venue-description" name="description" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required></textarea>
+                 </div>
+                 
+                 <div>
+                     <label for="edit-venue-image_url" class="block text-sm font-medium text-gray-700 mb-1">Image URL <span class="text-red-500">*</span></label>
+                     <input type="url" id="edit-venue-image_url" name="image_url" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-Sunrise-Orange focus:border-Sunrise-Orange sm:text-sm" required>
+                 </div>
+            </form>
+        </div>
+
+        {# Modal Footer #}
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 p-4 sm:p-5 border-t border-gray-200 rounded-b-lg bg-gray-50 flex-shrink-0">
+            <button type="button"
+                    class="w-full sm:w-auto px-5 py-2.5 border border-gray-300 bg-white text-gray-700 rounded-md font-medium text-sm hover:bg-gray-100 transition-colors"
+                    onclick="hideModal('editVenueModal')">
+                Cancel
+            </button>
+            <button type="submit" id="editVenueSubmitBtn" form="editVenueForm"
+                    class="w-full sm:w-auto flex-1 sm:flex-initial bg-Sunrise-Orange text-white px-5 py-2.5 rounded-md font-semibold text-sm hover:bg-Orange shadow">
+                Save Changes
+            </button>
+        </div>
+    </div>
+</div>

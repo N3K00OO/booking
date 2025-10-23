@@ -1,0 +1,578 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}AnyVenue – Cari Venue Olahraga{% endblock title %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="w-full pt-24 pb-16 sm:pb-28 bg-gradient-to-b from-Light-Navy to-Flash-White flex flex-col items-center gap-12">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-10">
+        <div class="w-full max-w-3xl mx-auto text-center opacity-0 animate-[fadeIn_0.6s_ease-out_forwards]">
+            <h1 class="text-Flash-White text-4xl sm:text-5xl md:text-6xl font-bold leading-tight md:leading-[67.20px] mb-6">
+                Saatnya Main, Yuk Cari Lapanganmu!
+            </h1>
+            <p class="text-Flash-White text-lg font-normal leading-relaxed">
+                Di sini, kamu bisa dengan mudah menemukan lapangan olahraga yang paling sesuai dengan kebutuhan dan gaya bermainmu.
+            </p>
+        </div>
+
+        <div class="w-full max-w-3xl mx-auto flex items-center gap-3 opacity-0 animate-[fadeIn_0.6s_ease-out_0.1s_forwards]">
+            <div class="relative flex-1">
+                <input type="search" id="search-input" name="search"
+                       class="block w-full p-3.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-Sunrise-Orange focus:border-Sunrise-Orange"
+                       placeholder="Cari nama venue, lokasi...">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+            {% if is_owner_role %}
+                <button onclick="showAddModal()" {% comment %} Ini akan memanggil JS modal nanti {% endcomment %}
+                        class="flex-shrink-0 group inline-flex items-center gap-2 px-5 py-3 bg-Sunrise-Orange text-white font-semibold rounded-lg hover:bg-Orange transition-all duration-300 hover:scale-105 shadow">
+                    <svg class="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="hidden sm:inline">Add Venue</span>
+                </button>
+            {% endif %}
+            <button id="refresh-venues-btn" title="Refresh List"
+                    class="flex-shrink-0 group inline-flex items-center justify-center p-3.5 h-[50px] w-[50px] bg-white text-gray-800 border border-gray-300 rounded-lg transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+                <svg class="w-5 h-5 text-Dark-Slate transition-transform duration-700 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8M21 3v5h-5"></path></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="w-full min-h-screen bg-gray-50 -mt-16 z-10 relative rounded-t-2xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col gap-4 mb-8 bg-white rounded-lg border border-gray-200 p-4 sm:p-5 shadow opacity-0 animate-[fadeIn_0.6s_ease-out_0.2s_forwards]">
+            <div class="w-full flex flex-col sm:flex-row flex-wrap gap-3">
+                
+                {% if is_owner_role %}
+                    <select id="filter-owner" name="owner_filter" class="flex-1 min-w-[150px] p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-Sunrise-Orange focus:border-Sunrise-Orange">
+                        <option value="all" selected>All Venues</option>
+                        <option value="my_venues">My Venues</option>
+                    </select>
+                {% endif %}
+
+                <select id="filter-city" name="city" class="flex-1 min-w-[150px] p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-Sunrise-Orange focus:border-Sunrise-Orange">
+                    <option value="" selected>All Cities</option>
+                    {% for city in cities %}
+                        <option value="{{ city.name }}">{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+                <select id="filter-category" name="category" class="flex-1 min-w-[150px] p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-Sunrise-Orange focus:border-Sunrise-Orange">
+                    <option value="" selected>All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <select id="filter-type" name="type" class="flex-1 min-w-[150px] p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-Sunrise-Orange focus:border-Sunrise-Orange">
+                    <option value="" selected>All Types</option>
+                    {% for value, display in types %}
+                        <option value="{{ value }}">{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- STATE -->
+        <div id="loading" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+            {% comment %} Tampilkan loading secara default, JS akan menyembunyikannya {% endcomment %}
+            <svg class="animate-spin h-10 w-10 text-Dark-Slate inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <p class="text-gray-600 mt-3 font-medium">Loading venues...</p>
+        </div>
+
+        <div id="error" class="hidden bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg">
+            </div>
+
+        <div id="venue-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+        <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+            <div class="w-28 h-28 mx-auto mb-4">
+                <img src="{% static 'image/no-venues.png' %}" alt="No venue available" class="w-full h-full object-contain">
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No venues found</h3>
+            {% if is_owner_role %}
+                <p class="text-gray-500 mb-6">Start by adding your first venue.</p>
+                <button onclick="showAddModal()" class="inline-flex items-center px-4 py-2 bg-Sunrise-Orange hover:bg-Orange text-white rounded-md transition-all duration-300 hover:scale-105">
+                    Add Venue
+                </button>
+            {% else %}
+                <p class="text-gray-500">Try adjusting your filters or check back later.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+{% if is_owner_role %}
+    {% include 'modal/add_venue.html' %}
+    {% include 'modal/edit_venue.html' %}
+    {% include 'modal/delete_venue.html' %}
+{% endif %}
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-animate {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .card-stagger-1 { animation-delay: 0.05s; opacity: 0; }
+  .card-stagger-2 { animation-delay: 0.1s; opacity: 0; }
+  .card-stagger-3 { animation-delay: 0.15s; opacity: 0; }
+  .card-stagger-4 { animation-delay: 0.2s; opacity: 0; }
+  .card-stagger-5 { animation-delay: 0.25s; opacity: 0; }
+  .card-stagger-6 { animation-delay: 0.3s; opacity: 0; }
+</style>
+
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    const VENUES_API_URL = "{% url 'venue:api_get_venues' %}";
+    const VENUE_DETAIL_URL_BASE = "{% url 'venue:venue_detail' 9999 %}".replace('/9999/', '/');
+    const VENUE_DETAIL_API_URL_BASE = "{% url 'venue:api_get_venue_detail' 9999 %}".replace('/9999/', '/');
+    const ADD_VENUE_API_URL = "{% url 'venue:api_add_venue' %}";
+    const EDIT_VENUE_API_URL_BASE = "{% url 'venue:api_edit_venue' 9999 %}".replace('/9999/', '/');
+    const DELETE_VENUE_API_URL_BASE = "{% url 'venue:api_delete_venue' 9999 %}".replace('/9999/', '/');
+
+    const CURRENT_USER_PROFILE_PK = "{{ profile.pk|default_if_none:'' }}";
+    const IS_OWNER = {{ is_owner_role|yesno:"true,false" }};
+    const CSRF_TOKEN = "{{ csrf_token }}";
+
+    // DOM ELEMENTS
+    let loadingSpinner, errorMessage, emptyStateDisplay, venuesGridContainer, refreshButton;
+    let ownerFilterSelect, cityFilterSelect, categoryFilterSelect, typeFilterSelect, searchInput;
+    let addVenueModal, addVenueForm, addVenueSubmitBtn;
+    let editVenueModal, editVenueForm, editVenueSubmitBtn, editVenueHiddenId;
+    let deleteVenueModal, deleteVenueNameSpan, deleteVenueHiddenId, deleteVenueConfirmBtn;
+
+    // STATE
+    let allVenuesData = []; 
+    let currentFilters = { 
+        owner: ownerFilterSelect ? ownerFilterSelect.value : 'all',
+        city: cityFilterSelect ? cityFilterSelect.value : '',
+        category: categoryFilterSelect ? categoryFilterSelect.value : '',
+        type: typeFilterSelect ? typeFilterSelect.value : '',
+        search: searchInput ? searchInput.value : ''
+    };
+
+    // Mengambil data terbaru dari server
+    async function fetchVenuesFromServer() {
+        try {
+            displayPageSection({ showLoading: true });
+            errorMessage.textContent = '';
+            errorMessage.classList.add('hidden');
+
+            const response = await fetch(VENUES_API_URL);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            allVenuesData = data || [];
+            
+            filterAndDisplayVenues();
+        } catch (error) {
+            console.error('Error loading venues:', error);
+            errorMessage.textContent = 'Failed to load venues. Please try refreshing.';
+            displayPageSection({ showError: true });
+        }
+    }
+
+    // Menerapkan filter (client-side) dan menampilkan hasilnya
+    function filterAndDisplayVenues() {
+        currentFilters = {
+            owner: ownerFilterSelect ? ownerFilterSelect.value : 'all',
+            city: cityFilterSelect.value,
+            category: categoryFilterSelect.value,
+            type: typeFilterSelect.value,
+            search: searchInput.value.toLowerCase()
+        };
+        
+        let filteredVenues = allVenuesData;
+
+        if (IS_OWNER && currentFilters.owner === 'my_venues') {
+            filteredVenues = filteredVenues.filter(v => v.owner_profile_pk === CURRENT_USER_PROFILE_PK);
+        }
+        if (currentFilters.city) {
+            filteredVenues = filteredVenues.filter(v => v.city_name === currentFilters.city);
+        }
+        if (currentFilters.category) {
+            filteredVenues = filteredVenues.filter(v => v.category_name === currentFilters.category);
+        }
+        if (currentFilters.type) {
+            filteredVenues = filteredVenues.filter(v => v.type === currentFilters.type);
+        }
+        if (currentFilters.search) {
+            const searchTerm = currentFilters.search;
+            filteredVenues = filteredVenues.filter(v => 
+                v.name.toLowerCase().includes(searchTerm) ||
+                (v.address && v.address.toLowerCase().includes(searchTerm))
+            );
+        }
+
+        renderAllVenueCards(filteredVenues);
+    }
+
+    function renderAllVenueCards(venues) {
+        venuesGridContainer.innerHTML = '';
+        
+        if (venues.length === 0) {
+            displayPageSection({ showEmpty: true });
+        } else {
+            venues.forEach((venue, index) => {
+                const card = buildVenueCardElement(venue);
+                card.classList.add(`card-stagger-${(index % 6) + 1}`);
+                venuesGridContainer.appendChild(card);
+            });
+            displayPageSection({ showGrid: true });
+        }
+    }
+
+    // Membuat HTML untuk satu kartu venue
+    function buildVenueCardElement(venue) {
+        const article = document.createElement('article');
+        article.className = 'group bg-white rounded-lg border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col card-animate';
+        const detailUrl = `${VENUE_DETAIL_URL_BASE}${venue.id}/`; 
+        const priceFormatted = venue.price ? `Rp ${venue.price}` : 'N/A'; // Harga tanpa format koma
+        const descriptionShort = (venue.description && venue.description.length > 100) ? venue.description.substring(0, 100) + '...' : (venue.description || 'No description available.');
+
+        // Tombol Edit/Delete (hanya untuk pemilik)
+        let actionButtons = '';
+        if (IS_OWNER && venue.owner_profile_pk === CURRENT_USER_PROFILE_PK) {
+            actionButtons = `
+                <div class='flex gap-3'>
+                    <button type='button' class='text-blue-600 hover:text-blue-800 text-sm font-medium edit-btn' data-id='${venue.id}'>Edit</button>
+                    <button type='button' class='text-red-600 hover:text-red-800 text-sm font-medium delete-btn' data-id='${venue.id}'>Delete</button>
+                </div>
+            `;
+        }
+
+        article.innerHTML = `
+            <a href="${detailUrl}" class="block aspect-[16/9] relative overflow-hidden">
+                <img src="${venue.image_url || '{% static "image/placeholder.png" %}'}" alt="${venue.name}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                <div class="absolute top-3 left-3 flex gap-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-Pale-Cerulean text-Dark-Slate">${venue.category_name}</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">${venue.type}</span>
+                </div>
+            </a>
+            <div class="p-5 flex flex-col flex-1">
+                <div class="flex items-center justify-between text-sm text-gray-500 mb-2">
+                    <span class="inline-flex items-center gap-1">
+                        <svg class="w-4 h-4 fill-current text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20s-8-6.15-8-12a8 8 0 0116 0c0 5.85-8 12-8 12zm0-9a3 3 0 100-6 3 3 0 000 6z"/></svg>
+                        ${venue.city_name}
+                    </span>
+                    <span>By: ${venue.owner_username}</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                    <a href="${detailUrl}" class="hover:text-Sunrise-Orange transition-colors">${venue.name}</a>
+                </h3>
+                <p class="text-gray-800 font-bold text-lg mb-3">
+                    ${priceFormatted} <span class="text-xs text-gray-500 font-light">/jam</span>
+                </p>
+                <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4 flex-1">${descriptionShort}</p>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
+                    <a href="${detailUrl}" class="text-Sunrise-Orange hover:text-Orange font-semibold text-sm transition-colors">View More</a>
+                    ${actionButtons}
+                </div>
+            </div>
+        `;
+        return article;
+    }
+
+    // Menampilkan/menyembunyikan section (loading, grid, dll)
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+        if (loadingSpinner) loadingSpinner.classList.toggle('hidden', !showLoading);
+        if (errorMessage) errorMessage.classList.toggle('hidden', !showError);
+        if (emptyStateDisplay) emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+        if (venuesGridContainer) venuesGridContainer.classList.toggle('hidden', !showGrid);
+        
+        if (showGrid && venuesGridContainer) {
+            venuesGridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        }
+    }
+
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        const modalContent = modal.querySelector('[id$="ModalContent"]');
+
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden'); 
+        setTimeout(() => {
+            if (modalContent) modalContent.classList.add('opacity-100', 'scale-100');
+        }, 10);
+    }
+
+    function hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        const modalContent = modal.querySelector('[id$="ModalContent"]');
+
+        if (modalContent) {
+            modalContent.classList.remove('opacity-100', 'scale-100');
+            modalContent.classList.add('opacity-0', 'scale-90');
+        }
+
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }, 300); 
+    }
+
+    function showAddModal() {
+        if (addVenueForm) addVenueForm.reset();
+        showModal('addVenueModal');
+    }
+
+    async function showEditModal(venueId) {
+        if (!editVenueForm) return;
+
+        editVenueForm.reset();
+        showModal('editVenueModal');
+        
+        // Tampilkan loading di dalam modal (opsional, tapi bagus)
+        document.getElementById('editVenueModal-title').textContent = 'Loading data...';
+
+        try {
+            const response = await fetch(`${VENUE_DETAIL_API_URL_BASE}${venueId}/`);
+            if (!response.ok) throw new Error('Failed to fetch venue details.');
+            
+            const venue = await response.json();
+
+            // Isi form EDIT
+            editVenueHiddenId.value = venue.id;
+            document.getElementById('edit-venue-name').value = venue.name;
+            document.getElementById('edit-venue-price').value = venue.price;
+            document.getElementById('edit-venue-type').value = venue.type;
+            document.getElementById('edit-venue-city').value = venue.city; 
+            document.getElementById('edit-venue-category').value = venue.category; 
+            document.getElementById('edit-venue-address').value = venue.address;
+            document.getElementById('edit-venue-description').value = venue.description;
+            document.getElementById('edit-venue-image_url').value = venue.image_url;
+
+            document.getElementById('editVenueModal-title').textContent = 'Edit Venue';
+
+        } catch (error) {
+            console.error('Error fetching venue for edit:', error);
+            document.getElementById('editVenueModal-title').textContent = 'Error loading data';
+        }
+    }
+
+    function showDeleteModal(venueId, venueName) {
+        if(deleteVenueNameSpan) deleteVenueNameSpan.textContent = `"${venueName}"`;
+        if(deleteVenueHiddenId) deleteVenueHiddenId.value = venueId;
+        showModal('deleteVenueModal');
+    }
+
+    function displayFormErrors(formElement, errors) {
+        // Hapus error lama
+        formElement.querySelectorAll('.form-error-message').forEach(el => el.remove());
+        
+        // Tampilkan error baru
+        for (const field in errors) {
+            const input = formElement.querySelector(`[name="${field}"]`);
+            if (input) {
+                const errorText = errors[field].join(' ');
+                const errorEl = document.createElement('p');
+                errorEl.className = 'text-red-500 text-xs mt-1 form-error-message';
+                errorEl.textContent = errorText;
+                input.parentElement.appendChild(errorEl);
+            }
+        }
+    }
+
+    // HANDLER
+    async function handleAddFormSubmit(event) {
+        event.preventDefault();
+        addVenueSubmitBtn.disabled = true;
+        addVenueSubmitBtn.textContent = 'Saving...';
+
+        const formData = new FormData(addVenueForm);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch(ADD_VENUE_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                hideModal('addVenueModal');
+                fetchVenuesFromServer(); 
+            } else {
+                const errorData = await response.json();
+                displayFormErrors(addVenueForm, errorData); // Tampilkan error validasi
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('An unexpected error occurred. Please try again.');
+        } finally {
+            addVenueSubmitBtn.disabled = false;
+            addVenueSubmitBtn.textContent = 'Add Venue';
+        }
+    }
+
+    async function handleEditFormSubmit(event) {
+        event.preventDefault();
+        editVenueSubmitBtn.disabled = true;
+        editVenueSubmitBtn.textContent = 'Saving...';
+
+        const formData = new FormData(editVenueForm);
+        const data = Object.fromEntries(formData.entries());
+        const venueId = data.id; // Ambil dari hidden input
+
+        try {
+            const response = await fetch(`${EDIT_VENUE_API_URL_BASE}${venueId}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                hideModal('editVenueModal');
+                fetchVenuesFromServer();
+            } else {
+                const errorData = await response.json();
+                displayFormErrors(editVenueForm, errorData); // Tampilkan error validasi
+            }
+        } catch (error) {
+            console.error('Error submitting edit form:', error);
+            alert('An unexpected error occurred. Please try again.');
+        } finally {
+            editVenueSubmitBtn.disabled = false;
+            editVenueSubmitBtn.textContent = 'Save Changes';
+        }
+    }
+
+    async function handleDeleteConfirm() {
+        const venueId = deleteVenueHiddenId.value;
+        if (!venueId) return;
+
+        deleteVenueConfirmBtn.disabled = true;
+        deleteVenueConfirmBtn.textContent = 'Deleting...';
+
+        try {
+            const response = await fetch(`${DELETE_VENUE_API_URL_BASE}${venueId}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': CSRF_TOKEN },
+            });
+
+            if (response.ok) {
+                hideModal('deleteVenueModal');
+                fetchVenuesFromServer(); 
+            } else {
+                const errorData = await response.json();
+                alert(`Failed to delete: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (error) {
+            console.error('Error deleting venue:', error);
+            alert('An unexpected error occurred while deleting.');
+        } finally {
+            deleteVenueConfirmBtn.disabled = false;
+            deleteVenueConfirmBtn.textContent = 'Yes, Delete';
+            deleteVenueHiddenId.value = '';
+        }
+    }
+
+    // INISIALISASI & EVENT LISTENERS
+    document.addEventListener('DOMContentLoaded', () => {
+        // Ambil elemen halaman utama
+        loadingSpinner = document.getElementById('loading');
+        errorMessage = document.getElementById('error');
+        emptyStateDisplay = document.getElementById('empty');
+        venuesGridContainer = document.getElementById('venue-grid'); 
+        refreshButton = document.getElementById('refresh-venues-btn');
+        
+        ownerFilterSelect = document.getElementById('filter-owner');
+        cityFilterSelect = document.getElementById('filter-city');
+        categoryFilterSelect = document.getElementById('filter-category');
+        typeFilterSelect = document.getElementById('filter-type');
+        searchInput = document.getElementById('search-input');
+
+        // Listener untuk semua filter (on change)
+        if (ownerFilterSelect) ownerFilterSelect.addEventListener('change', filterAndDisplayVenues);
+        if (cityFilterSelect) cityFilterSelect.addEventListener('change', filterAndDisplayVenues);
+        if (categoryFilterSelect) categoryFilterSelect.addEventListener('change', filterAndDisplayVenues);
+        if (typeFilterSelect) typeFilterSelect.addEventListener('change', filterAndDisplayVenues);
+        
+        // Filter 'on input' (saat mengetik) untuk search bar
+        if (searchInput) searchInput.addEventListener('input', filterAndDisplayVenues); 
+        
+        if (refreshButton) refreshButton.addEventListener('click', fetchVenuesFromServer);
+        
+        // Ambil data pertama kali saat halaman load
+        fetchVenuesFromServer();
+        
+        // MODAL
+        if (IS_OWNER) {
+            // Ambil elemen modal
+            addVenueForm = document.getElementById('addVenueForm'); 
+            addVenueSubmitBtn = document.getElementById('addVenueSubmitBtn');
+            editVenueForm = document.getElementById('editVenueForm'); 
+            editVenueSubmitBtn = document.getElementById('editVenueSubmitBtn');
+            editVenueHiddenId = document.getElementById('edit-venue-id');
+            deleteVenueNameSpan = document.getElementById('venue-name-to-delete');
+            deleteVenueHiddenId = document.getElementById('delete-venue-id');
+            deleteVenueConfirmBtn = document.getElementById('confirmDeleteBtn');
+
+            // Listener untuk submit form ADD
+            if (addVenueForm) {
+                addVenueForm.addEventListener('submit', handleAddFormSubmit);
+            }
+
+            // Listener untuk submit form EDIT
+            if (editVenueForm) {
+                editVenueForm.addEventListener('submit', handleEditFormSubmit);
+            }
+
+            // Listener untuk tombol konfirmasi DELETE
+            if (deleteVenueConfirmBtn) {
+                deleteVenueConfirmBtn.addEventListener('click', handleDeleteConfirm);
+            }
+
+            // Listener untuk tombol Edit/Delete di dalam Grid
+            venuesGridContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                if (target.classList.contains('edit-btn')) {
+                    const venueId = target.dataset.id; 
+                    showEditModal(venueId);
+                }
+                
+                if (target.classList.contains('delete-btn')) {
+                    const venueId = target.dataset.id; 
+                    const venueName = target.closest('.group').querySelector('h3 a').textContent;
+                    showDeleteModal(venueId, venueName);
+                }
+            });
+        }
+    });
+</script>
+{% endblock extra_js %}

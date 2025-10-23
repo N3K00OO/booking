@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% include "navbar.html" %}
+
+<!-- Section 1: Header -->
+{% include "sections/header.html" %}
+
+<!-- Button to test modal -->
+<!-- <button onclick="showAddReviewModal()" class="px-5 py-2 bg-gray-800 text-white rounded-lg shadow">
+    Add Review
+</button> -->
+
+<!-- Section 2: Features Preview -->
+{% include "sections/features_preview.html" %}
+
+<!-- Section 3: Booking Preview -->
+{% include "sections/booking_preview.html" %}
+
+<!-- Section 4: Reviews Preview -->
+{% include "sections/reviews_preview.html" %}
+
+<!-- Section 5: Events Preview -->
+{% include "sections/events_preview.html" %}
+
+<!-- Footer Section -->
+{% include "footer.html" %}
+<script>
+document.querySelectorAll('[data-scroll]').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.getElementById(btn.dataset.scroll);
+        if(target){
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+
+{% endblock content %}

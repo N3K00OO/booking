@@ -1,0 +1,8 @@
+aplikasi ini adalah untuk melakukan booking venue/lapangan. Di bagian Detail milik teman saya (screenshot 1), 
+ketika memencet booking now akan muncul modal untuk melakukan Booking (fitur saya, screenshot 2), 
+di modal tersebut akan ada tanggal dan jam untuk booking  (seperti di screenshot 3), 
+harga per jam/sesi dari venuenya, tipe dari venuenya (indoor atau outdoor). 
+harga checkout booking akan sesuai dengan lama sesi dari venue tersebut. 
+
+aplikasi ini merupakan installed django apps baru dengan nama booking. 
+Implementasi dapat dilihat pada folder image.

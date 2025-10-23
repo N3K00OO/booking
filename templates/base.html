@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AnyVenue{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'Light-Navy': '#3D5A80',
+                        'Flash-White': '#EFEFEF',
+                        'Dark-Slate' : '#315762',
+                        'Orange' : '#E9631A',
+                        'Sunrise-Orange' : '#EE6C4D',
+                        'Pale-Cerulean' : '#98C1D9',
+                        'Light-Cyan' : '#98C1D9',
+
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; }
+        html, body { min-height: 100%; overflow-y: auto; }
+
+        .section-with-overlay {
+            position: relative;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, 
+                rgba(0, 0, 0, 0.7) 0%, 
+                rgba(0, 0, 0, 0.5) 50%, 
+                rgba(61, 90, 128, 1) 100%);
+                
+            z-index: 1;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+
+</head>
+<body >
+    {% block content %}{% endblock %}
+    {% block extra_js %}{% endblock extra_js %}
+    {% include 'add_review.html' %}
+</body>
+</html>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ROOT CONTAINER -->
+<div class="min-h-screen w-full relative bg-white overflow-hidden flex flex-col">
+
+    <!-- BACKGROUND WRAPPER -->
+    <div class="w-full flex-grow px-4 sm:px-8 md:px-16 pb-4 bg-gradient-to-b from-Light-Navy to-Flash-White flex flex-col justify-between items-center gap-16 sm:gap-24 md:gap-36 overflow-hidden">
+
+        <!-- NAVBAR -->
+        <div class="w-full max-w-[1280px] max-h-20 flex flex-col justify-center items-center overflow-hidden">
+            <div class="w-full flex flex-wrap justify-between items-center gap-4 sm:gap-8 overflow-hidden px-4 sm:px-0">
+                <div class="flex-1 flex justify-start items-start">
+                    <a href="/" id="brand-link" class="text-2xl font-bold text-white tracking-wide transition-colors duration-300">
+                        AnyVenue
+                    </a>
+                </div>
+                <div class="flex flex-wrap justify-center items-center gap-1 sm:gap-[5px]">
+                    <div class="text-center text-Flash-White text-base font-normal font-['Roboto'] leading-normal">Don't have an account?</div>
+                    <a href="{% url 'register' %}" class="text-center text-Flash-White text-base font-normal font-['Roboto'] underline leading-normal">Register Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN SECTION -->
+        <div class="w-full max-w-[1064px] flex flex-col justify-start items-center gap-6 sm:gap-12 px-4 sm:px-0 flex-grow">
+            <div class="text-center text-Flash-White text-4xl sm:text-5xl font-bold font-['Roboto'] leading-tight sm:leading-[57.60px]">
+                Sign In
+            </div>
+
+            <div class="w-full flex flex-col justify-center items-center gap-4 sm:gap-6">
+                <div class="flex flex-col justify-center items-center text-center gap-2">
+                    <div class="text-Flash-White text-xl sm:text-2xl font-bold font-['Roboto'] leading-loose">
+                        Welcome to AnyVenue!
+                    </div>
+                    <div class="text-Flash-White text-sm sm:text-base font-normal font-['Roboto'] leading-normal">
+                        Continue discovering and managing your experiences with Anyvenue.
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- FORM LOGIN AJAX -->
+            <form id="loginForm" class="w-full max-w-[580px] p-6 sm:p-8 bg-white/70 outline outline-1 outline-offset-[-1px] outline-Color-Scheme-1-Border flex flex-col justify-start items-start gap-4 sm:gap-6 rounded-lg">
+                {% csrf_token %}
+                <div class="w-full flex flex-col justify-start items-start gap-4 sm:gap-6">
+                    <div class="w-full flex flex-col justify-start items-start gap-2">
+                        <label class="text-Color-Scheme-1-Text text-base font-normal font-['Roboto'] leading-normal">Username</label>
+                        <input type="text" id="username" name="username" class="w-full p-3 outline outline-1 outline-Color-Neutral-Darkest bg-transparent focus:bg-Flash-White rounded-md" required>
+                    </div>
+                    <div class="w-full flex flex-col justify-start items-start gap-2">
+                        <label class="text-Color-Scheme-1-Text text-base font-normal font-['Roboto'] leading-normal">Password</label>
+                        <input type="password" id="password" name="password" class="w-full p-3 outline outline-1 outline-Color-Neutral-Darkest bg-transparent focus:bg-Flash-White rounded-md" required>
+                    </div>
+                </div>
+                <div id="loginMessage" class="text-red-600 text-sm"></div>
+                <div class="w-full pt-4 sm:pt-6 flex flex-wrap justify-end items-start gap-3 sm:gap-4">
+                    <button type="button" class="px-4 sm:px-5 py-2 outline outline-1 outline-Color-Neutral-Darkest flex justify-center items-center gap-2 rounded-md">
+                        <div class="text-Color-Neutral-Darkest text-base font-normal font-['Roboto'] leading-normal">Back</div>
+                    </button>
+                    <button type="submit" class="px-4 sm:px-5 py-2 bg-black outline outline-1 outline-Color-Neutral-Darkest flex justify-center items-center gap-2 rounded-md">
+                        <div class="text-white text-base font-normal font-['Roboto'] leading-normal">Login</div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="w-full max-w-[1280px] h-auto flex justify-center items-center py-4">
+            <div class="text-center text-Color-Scheme-1-Text text-xs sm:text-sm font-normal font-['Roboto'] leading-tight">
+                © 2025 AnyVenue
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $("#loginForm").submit(function(e){
+        e.preventDefault();
+        const data = {
+            username: $("#username").val(),
+            password: $("#password").val(),
+            csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'login' %}",
+            data: data,
+            success: function(response){
+                if(response.success){
+                    window.location.href = "{% url 'landing:show_landing' %}";
+                } else {
+                    $("#loginMessage").text(response.message);
+                }
+            },
+            error: function(xhr){
+                $("#loginMessage").text("Server error: " + xhr.status);
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

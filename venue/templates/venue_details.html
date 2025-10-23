@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% include "navbar.html" %}
+
+<div class="w-full max-w-[1440px] mx-auto bg-white overflow-hidden">
+    
+    <!-- HERO SECTION -->
+    <div class="w-full px-6 py-16 sm:py-28 bg-gradient-to-b from-Light-Navy to-Flash-White flex flex-col items-center gap-12 sm:gap-20">
+        <div class="w-full max-w-[1280px] flex flex-col items-start gap-12 sm:gap-20">
+            
+            <!-- HEADER SECTION -->
+            <div class="w-full flex flex-col lg:flex-row justify-start items-center lg:items-start gap-8 lg:gap-16">
+                
+                <!-- LEFT COLUMN: Details -->
+                <div class="flex-1 w-full flex flex-col items-start gap-8">
+                    <div class="self-stretch flex flex-col items-start gap-6">
+                        
+                        <!-- Breadcrumb -->
+                        <nav aria-label="Breadcrumb" class="self-stretch flex items-center gap-2 text-sm text-Flash-White">
+                            <a href="#" class="hover:underline font-normal font-['Roboto'] leading-tight">All Venue</a>
+                            <svg class="size-4 shrink-0" width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M6.25854 5.34814L9.72534 8.71729C9.77811 8.7816 9.78589 8.80029 9.80151 8.8833C9.78589 8.96631 9.77807 8.98506 9.72534 9.04932L6.41187 12.3618C6.3161 12.4282 6.19961 12.424 6.08765 12.3452C6.01538 12.2415 6.01545 12.1073 6.08765 12.0044L9.20874 8.8833L6.07104 5.74463C6.00562 5.64885 6.00987 5.53237 6.08765 5.42041C6.14502 12.4026 6.19961 12.424 6.26245 12.4263C6.3161 12.4282 6.36016 12.4134 6.41187 12.3618L9.72534 9.04932C9.76134 9.0133 9.77807 8.98506 9.78589 8.96631C9.79576 8.94264 9.80147 8.9157 9.80151 8.8833C9.80151 8.85089 9.79571 8.82397 9.78589 8.80029C9.77811 8.7816 9.76116 8.75319 9.72534 8.71729L6.42847 5.42041C6.37656 5.36868 6.32559 5.34816 6.25854 5.34814Z" fill="currentColor" stroke="currentColor" stroke-width="0.666667"/>
+                            </svg>
+                            <span class="font-semibold font-['Roboto'] leading-tight">{{ venue.name }}</span>
+                        </nav>
+
+                        <!-- Title -->
+                        <h1 class="self-stretch text-Flash-White text-4xl font-bold font-['Roboto'] leading-[48px]">
+                            {{ venue.name }}
+                        </h1>
+
+                        <!-- Price & Rating -->
+                        <div class="inline-flex items-center gap-4">
+                            <span class="text-white text-2xl font-bold font-['Roboto'] leading-loose">
+                                Rp{{ venue.price }} 
+                                <span class="text-sm text-Flash-White font-light">/jam</span>
+                            </span>
+                            
+                            <span class="h-10 w-px bg-Color-Scheme-1-Border" aria-hidden="true"></span>
+                            
+                            <div class="inline-flex flex-col items-start gap-1">
+                                <div class="flex items-center gap-1">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="..."/>
+                                    </svg>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="..."/>
+                                    </svg>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="..."/>
+                                    </svg>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="..." stroke="currentColor"/>
+                                    </svg>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" clip-rule="evenodd" d="..."/>
+                                    </svg>
+                                </div>
+                                <span class="text-center text-white text-sm font-normal font-['Roboto'] leading-tight">
+                                    (3.5 stars) • 10 reviews
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Details Section -->
+                        <div class="self-stretch flex flex-col items-start gap-6">
+                            <div class="w-fit pt-2 border-b border-black">
+                                <div class="inline-flex flex-col items-start gap-2">
+                                    <span class="text-white text-base font-normal font-['Roboto'] leading-normal">Details</span>
+                                    <div class="w-full h-0.5 bg-Color-Scheme-1-Accent"></div> 
+                                </div>
+                            </div>
+                            <div class="self-stretch text-white text-base font-normal font-['Roboto'] leading-normal">
+                                {{ venue.description }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CENTER COLUMN: Image -->
+                <div class="w-full max-w-[490px] lg:w-[490px] flex flex-col items-start gap-4">
+                    <div class="self-stretch">
+                        <img class="w-full h-auto aspect-square object-cover" src="{{ venue.image_url }}" alt="Venue Image" />
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Location & Booking -->
+                <div class="flex-1 w-full flex flex-col items-start gap-6">
+                    
+                    <!-- Location Section -->
+                    <div class="self-stretch flex flex-col items-start gap-6">
+                        <div class="w-fit pt-2 border-b border-black">
+                            <div class="inline-flex flex-col items-start gap-2">
+                                <span class="text-white text-base font-normal font-['Roboto'] leading-normal">Location</span>
+                                <div class="w-full h-0.5 bg-Color-Scheme-1-Accent"></div>
+                            </div>
+                        </div>
+                        <div class="self-stretch text-white text-base font-normal font-['Roboto'] leading-normal">
+                            {{ venue.address }}
+                        </div>
+                    </div>
+                    
+                    <!-- Type & Variant Section -->
+                    <div class="self-stretch flex flex-col items-start gap-6">
+                        
+                        <!-- Type -->
+                        <div class="self-stretch flex items-start gap-8">
+                            <span class="text-white text-base font-normal font-['Roboto'] leading-normal mt-2">Type</span>
+                            <div class="flex-1 flex flex-wrap gap-4">
+                                <button type="button" class="px-4 py-2 outline outline-1 outline-Color-Neutral-Darkest text-Color-Neutral-Darkest text-base font-normal font-['Roboto'] leading-normal">
+                                    {{ venue.type }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Variant & Quantity -->
+                        <div class="self-stretch flex flex-col sm:flex-row items-start gap-4">
+                            
+                            <!-- Variant Dropdown -->
+                            <div class="flex-1 w-full sm:w-auto inline-flex flex-col items-start gap-2">
+                                <label for="venue-variant-select" class="self-stretch text-white text-base font-normal font-['Roboto'] leading-normal">
+                                    Variant
+                                </label>
+                                <div class="relative self-stretch">
+                                    <select id="venue-variant-select" class="w-full appearance-none p-3 outline outline-1 outline-Color-Neutral-Darkest text-Color-Neutral-Darkest text-base font-normal font-['Roboto'] leading-normal bg-white rounded">
+                                        <option value="">Select</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quantity Input -->
+                            <div class="w-full sm:w-auto inline-flex flex-col items-start gap-2">
+                                <label for="venue-quantity" class="self-stretch text-white text-base font-normal font-['Roboto'] leading-normal">
+                                    Qty
+                                </label>
+                                <input type="number" id="venue-quantity" value="1" min="1" class="w-16 p-3 outline outline-1 outline-Color-Neutral-Darkest text-white text-base font-normal font-['Roboto'] leading-normal rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="self-stretch flex flex-col items-start gap-4 pt-2">
+                        <button type="submit" class="self-stretch px-6 py-3 bg-Color-Neutral-Darkest text-Color-White outline outline-1 outline-Color-Neutral-Darkest text-base font-normal font-['Roboto'] leading-normal rounded hover:bg-opacity-90 transition-colors">
+                            Booking Venue
+                        </button>
+                        <button type="button" class="self-stretch px-6 py-3 text-Color-Neutral-Darkest outline outline-1 outline-Color-Neutral-Darkest text-base font-normal font-['Roboto'] leading-normal rounded hover:bg-gray-100 transition-colors">
+                            Review Now
+                        </button>
+                        <span class="self-stretch text-center text-white text-xs font-normal font-['Roboto'] leading-none">
+                            Free shipping over $50
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TESTIMONIALS SECTION -->
+            <div class="w-full flex flex-col items-center gap-6 pt-10">
+                
+                <!-- Section Header -->
+                <div class="w-full max-w-[768px] text-center flex flex-col items-center gap-6">
+                    <h2 class="self-stretch text-white text-5xl font-bold font-['Roboto'] leading-[57.60px]">
+                        Customer testimonials
+                    </h2>
+                    <p class="self-stretch text-white text-lg font-normal font-['Roboto'] leading-relaxed">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    </p>
+                </div>
+                
+                <!-- Testimonials Grid -->
+                <div class="self-stretch grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
+                    
+                    <!-- Testimonial 1 -->
+                    <div class="flex flex-col items-start gap-8">
+                        <div class="inline-flex items-start gap-1 text-white">
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                        </div>
+                        <blockquote class="self-stretch text-white text-xl font-bold font-['Roboto'] leading-7">
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare."
+                        </blockquote>
+                        <div class="flex flex-col items-start gap-4">
+                            <div class="flex flex-col items-start">
+                                <cite class="not-italic text-white text-base font-semibold font-['Roboto'] leading-normal">
+                                    Name Surname
+                                </cite>
+                                <span class="text-white text-base font-normal font-['Roboto'] leading-normal">
+                                    Position, Company name
+                                </span>
+                            </div>
+                            <div class="w-28 h-12 bg-gray-200"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div class="flex flex-col items-start gap-8">
+                        <div class="inline-flex items-start gap-1 text-white">
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                        </div>
+                        <blockquote class="self-stretch text-white text-xl font-bold font-['Roboto'] leading-7">
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare."
+                        </blockquote>
+                        <div class="flex flex-col items-start gap-4">
+                            <div class="flex flex-col items-start">
+                                <cite class="not-italic text-white text-base font-semibold font-['Roboto'] leading-normal">
+                                    Name Surname
+                                </cite>
+                                <span class="text-white text-base font-normal font-['Roboto'] leading-normal">
+                                    Position, Company name
+                                </span>
+                            </div>
+                            <div class="w-28 h-12 bg-gray-200"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="flex flex-col items-start gap-8">
+                        <div class="inline-flex items-start gap-1 text-white">
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                            <svg width="20" height="19" viewBox="0 0 20 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="..."/>
+                            </svg>
+                        </div>
+                        <blockquote class="self-stretch text-white text-xl font-bold font-['Roboto'] leading-7">
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare."
+                        </blockquote>
+                        <div class="flex flex-col items-start gap-4">
+                            <div class="flex flex-col items-start">
+                                <cite class="not-italic text-white text-base font-semibold font-['Roboto'] leading-normal">
+                                    Name Surname
+                                </cite>
+                                <span class="text-white text-base font-normal font-['Roboto'] leading-normal">
+                                    Position, Company name
+                                </span>
+                            </div>
+                            <div class="w-28 h-12 bg-gray-200"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% include "footer.html" %}
+
+{% endblock content %}
