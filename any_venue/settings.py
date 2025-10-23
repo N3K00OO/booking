@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'authentication.apps.AuthenticationConfig',
     'landing',
     'venue',
@@ -50,8 +51,8 @@ INSTALLED_APPS = [
     # 'user.apps.UserConfig',
     'review',
     'event',
-    'account.apps.AccountConfig'
-    
+    'account.apps.AccountConfig',
+
 ]
 
 MIDDLEWARE = [

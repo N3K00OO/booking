@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}My Profile | AnyVenue{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+
+<div class="pt-28 pb-16 bg-gradient-to-b from-[#3D5A80] via-[#274472] to-[#1B2A41] min-h-screen">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col gap-10 text-white">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white/10 backdrop-blur rounded-2xl p-8 shadow-lg">
+            <div class="flex flex-col gap-2">
+                <span class="text-sm uppercase tracking-[0.4em] text-white/70">Profile</span>
+                <h1 class="text-4xl font-semibold">Hi, {{ profile.user.first_name|default:profile.user.username }}!</h1>
+                <p class="text-white/80">You joined AnyVenue on {{ profile.user.date_joined|date:"d F Y" }}.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+                    <p class="text-sm uppercase tracking-wider text-white/70">Role</p>
+                    <p class="text-xl font-semibold">{{ profile.get_role_display }}</p>
+                </div>
+                <div class="px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+                    <p class="text-sm uppercase tracking-wider text-white/70">Upcoming bookings</p>
+                    <p class="text-xl font-semibold">{{ upcoming_bookings|length }}</p>
+                </div>
+                {% if profile.is_owner %}
+                <div class="px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+                    <p class="text-sm uppercase tracking-wider text-white/70">Venues managed</p>
+                    <p class="text-xl font-semibold">{{ owned_venues|length }}</p>
+                </div>
+                <div class="px-4 py-3 rounded-xl bg-white/10 border border-white/20">
+                    <p class="text-sm uppercase tracking-wider text-white/70">Upcoming guests</p>
+                    <p class="text-xl font-semibold">{{ owner_upcoming_total }}</p>
+                </div>
+                {% else %}
+                <div class="px-4 py-3 rounded-xl bg-white/10 border border-white/20 col-span-2">
+                    <p class="text-sm uppercase tracking-wider text-white/70">Past bookings</p>
+                    <p class="text-xl font-semibold">{{ past_bookings_count }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h2 class="text-2xl font-semibold text-gray-900">Upcoming bookings</h2>
+                    <p class="text-gray-600">Track your next play dates and arrive prepared.</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{% url 'booking:user_bookings' %}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#3D5A80] text-white font-medium hover:bg-[#2f496d] transition">View all</a>
+                </div>
+            </div>
+
+            {% if upcoming_bookings %}
+            <div class="mt-6 grid grid-cols-1 gap-6">
+                {% for booking in upcoming_bookings %}
+                <article class="flex flex-col sm:flex-row sm:items-center gap-6 p-6 border border-gray-100 rounded-xl shadow-sm">
+                    <div class="flex-shrink-0 w-full sm:w-40 h-32 overflow-hidden rounded-lg bg-gray-200">
+                        <img src="{{ booking.venue.image_url }}" alt="{{ booking.venue.name }}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 flex flex-col gap-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">{{ booking.venue.name }}</h3>
+                                <p class="text-sm text-gray-600">{{ booking.venue.city.name }} • {{ booking.venue.type }}</p>
+                            </div>
+                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#EE6C4D]/10 text-[#EE6C4D] text-sm font-medium">
+                                {{ booking.date|date:"l, d F Y" }}
+                            </span>
+                        </div>
+                        <dl class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                            <div>
+                                <dt class="font-semibold text-gray-900">Time</dt>
+                                <dd>{{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-semibold text-gray-900">Duration</dt>
+                                <dd>{{ booking.duration_hours }} hour{{ booking.duration_hours|pluralize }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-semibold text-gray-900">Total</dt>
+                                <dd>Rp{{ booking.total_price|intcomma }}</dd>
+                            </div>
+                            <div>
+                                <dt class="font-semibold text-gray-900">Booked on</dt>
+                                <dd>{{ booking.created_at|date:"d M Y H:i" }}</dd>
+                            </div>
+                        </dl>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{% url 'venue:venue_detail' booking.venue.id %}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#3D5A80] text-white text-sm font-medium hover:bg-[#2f496d] transition">Venue details</a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="mt-6 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center text-gray-600">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">No upcoming bookings yet</h3>
+                <p>Explore our venues and reserve your favourite slot for your next game.</p>
+                <a href="{% url 'venue:venue_main' %}" class="mt-6 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#EE6C4D] text-white font-medium hover:bg-[#d95a3b] transition">Browse venues</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white/10 border border-white/15 rounded-2xl p-6 backdrop-blur">
+                <h2 class="text-xl font-semibold mb-3">Recently completed</h2>
+                <p class="text-white/80 text-sm mb-4">A quick glance at the last bookings you wrapped up.</p>
+                {% if past_bookings %}
+                <ul class="space-y-4">
+                    {% for booking in past_bookings %}
+                    <li class="flex flex-col gap-2 border border-white/10 rounded-xl p-4 bg-white/5">
+                        <div class="flex items-center justify-between">
+                            <p class="font-medium">{{ booking.venue.name }}</p>
+                            <span class="text-sm text-white/70">{{ booking.date|date:"d M Y" }}</span>
+                        </div>
+                        <p class="text-sm text-white/70">{{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }} • Rp{{ booking.total_price|intcomma }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-white/70">No past bookings yet — your history will appear here after you complete a reservation.</p>
+                {% endif %}
+            </div>
+
+            {% if profile.is_owner %}
+            <div class="bg-white/10 border border-white/15 rounded-2xl p-6 backdrop-blur">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold">Manage your venues</h2>
+                        <p class="text-white/80 text-sm">Keep track of upcoming guests and venue performance.</p>
+                    </div>
+                    <a href="{% url 'venue:venue_main' %}#manage" class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-white/40 text-sm font-medium hover:bg-white/10 transition">Add / edit venue</a>
+                </div>
+
+                {% if owned_venues %}
+                <div class="space-y-4">
+                    {% for venue in owned_venues %}
+                    <details class="group bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+                        <summary class="flex flex-col gap-2 p-4 cursor-pointer">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="text-lg font-semibold">{{ venue.name }}</h3>
+                                    <p class="text-sm text-white/70">{{ venue.city.name }} • {{ venue.type }} • {{ venue.category.name }}</p>
+                                </div>
+                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#98C1D9]/20 text-[#98C1D9] text-xs font-semibold">
+                                    {{ venue.upcoming_bookings|length }} upcoming
+                                </span>
+                            </div>
+                            <p class="text-sm text-white/60">Click to view guest list and booking slots.</p>
+                        </summary>
+                        <div class="bg-white/90 text-gray-800">
+                            {% if venue.upcoming_bookings %}
+                            <ul class="divide-y divide-gray-200">
+                                {% for booking in venue.upcoming_bookings %}
+                                <li class="p-4 flex flex-col gap-1">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <span class="font-medium text-gray-900">{{ booking.date|date:"l, d F Y" }}</span>
+                                        <span class="text-sm text-gray-600">{{ booking.start_time|time:"H:i" }} – {{ booking.end_time|time:"H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">{{ booking.duration_hours }} hour{{ booking.duration_hours|pluralize }} • Rp{{ booking.total_price|intcomma }}</p>
+                                    <p class="text-sm text-gray-700">Booked by <span class="font-semibold">{{ booking.user.user.get_full_name|default:booking.user.user.username }}</span></p>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <div class="p-6 text-center text-gray-600">No upcoming bookings for this venue. Spread the word to attract players!</div>
+                            {% endif %}
+                            <div class="p-4 bg-gray-100 flex justify-end">
+                                <a href="{% url 'venue:venue_detail' venue.id %}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#3D5A80] text-white text-sm font-medium hover:bg-[#2f496d] transition">View venue page</a>
+                            </div>
+                        </div>
+                    </details>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-white/70">You have not added any venues yet. Start by publishing your first venue to receive bookings.</p>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="bg-white/10 border border-white/15 rounded-2xl p-6 backdrop-blur">
+                <h2 class="text-xl font-semibold mb-3">Need inspiration?</h2>
+                <p class="text-white/80 text-sm mb-4">Browse curated venues and events that match your favourite sports.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'venue:venue_main' %}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-white/40 text-sm font-medium hover:bg-white/10 transition">Explore venues</a>
+                    <a href="#event" class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-white/40 text-sm font-medium hover:bg-white/10 transition">Discover events</a>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+{% include "footer.html" %}
+{% endblock content %}
