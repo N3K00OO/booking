@@ -61,6 +61,80 @@
 </head>
 <body >
     {% block content %}{% endblock %}
+
+    <div id="toast-root" class="fixed top-24 right-4 z-[120] w-full max-w-sm space-y-3 pointer-events-none hidden"></div>
+    <script>
+        (function() {
+            const root = document.getElementById('toast-root');
+            if (!root) {
+                return;
+            }
+
+            const TYPE_STYLES = {
+                success: {
+                    classes: 'border-green-200 bg-green-50 text-green-800',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>'
+                },
+                error: {
+                    classes: 'border-red-200 bg-red-50 text-red-700',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.007v.008H12v-.008z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                },
+                info: {
+                    classes: 'border-blue-200 bg-blue-50 text-blue-700',
+                    icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+                },
+            };
+
+            const removeToast = (toastEl) => {
+                if (!toastEl) return;
+                toastEl.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => {
+                    if (toastEl.parentElement === root) {
+                        root.removeChild(toastEl);
+                    }
+                    if (!root.children.length) {
+                        root.classList.add('hidden');
+                    }
+                }, 200);
+            };
+
+            const buildToast = ({ message, title, type }) => {
+                const safeType = TYPE_STYLES[type] ? type : 'info';
+                const wrapper = document.createElement('div');
+                wrapper.className = `pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg transition-all duration-200 bg-white ${TYPE_STYLES[safeType].classes}`;
+                wrapper.innerHTML = `
+                    <span class="mt-0.5 shrink-0" aria-hidden="true">${TYPE_STYLES[safeType].icon}</span>
+                    <div class="flex-1 space-y-1">
+                        ${title ? `<p class="text-sm font-semibold">${title}</p>` : ''}
+                        <p class="text-sm leading-relaxed">${message}</p>
+                    </div>
+                    <button type="button" class="ml-2 text-sm font-medium hover:underline" aria-label="Close notification">Close</button>
+                `;
+
+                const closeButton = wrapper.querySelector('button');
+                closeButton.addEventListener('click', () => removeToast(wrapper));
+                return wrapper;
+            };
+
+            const show = ({ message, type = 'info', title = '', timeout = 4000 } = {}) => {
+                if (!message) return;
+                const toastEl = buildToast({ message, type, title });
+                root.appendChild(toastEl);
+                root.classList.remove('hidden');
+
+                if (timeout > 0) {
+                    setTimeout(() => removeToast(toastEl), timeout);
+                }
+            };
+
+            const clear = () => {
+                Array.from(root.children).forEach(child => removeToast(child));
+            };
+
+            window.AnyVenueToast = { show, clear };
+        })();
+    </script>
+
     {% block extra_js %}{% endblock extra_js %}
     {% include 'add_review.html' %}
 </body>
