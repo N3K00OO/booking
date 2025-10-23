@@ -432,9 +432,6 @@
             statusBox.classList.add('hidden');
             statusBox.textContent = '';
             selectedStartTime = null;
-            if (window.AnyVenueToast) {
-                window.AnyVenueToast.clear();
-            }
             modal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
             fetchAvailability(dateInput.value);
@@ -530,14 +527,6 @@
                 })
                 .catch(() => {
                     timeSlotContainer.innerHTML = '<p class="col-span-full text-sm text-red-600">Unable to fetch availability. Please try again later.</p>';
-                    if (window.AnyVenueToast) {
-                        window.AnyVenueToast.show({
-                            type: 'error',
-                            title: 'Availability error',
-                            message: 'We were unable to load the latest availability. Please try again shortly.',
-                            timeout: 4000,
-                        });
-                    }
                 });
         };
 
@@ -548,17 +537,9 @@
 
         const submitBooking = () => {
             if (!selectedStartTime) {
-                const errorMessage = 'Please choose a time slot before confirming your booking.';
-                statusBox.textContent = errorMessage;
+                statusBox.textContent = 'Please choose a time slot before confirming your booking.';
                 statusBox.className = 'rounded-lg px-4 py-3 text-sm bg-red-100 text-red-700';
                 statusBox.classList.remove('hidden');
-                if (window.AnyVenueToast) {
-                    window.AnyVenueToast.show({
-                        type: 'error',
-                        title: 'Booking incomplete',
-                        message: errorMessage,
-                    });
-                }
                 return;
             }
 
@@ -582,44 +563,21 @@
                 .then(response => response.json().then(data => ({ status: response.status, data })))
                 .then(({ status, data }) => {
                     if (status === 201) {
-                        const successMessage = 'Booking confirmed! You can review it from your My Bookings page.';
-                        statusBox.textContent = successMessage;
+                        statusBox.textContent = 'Booking confirmed! You can review it from your My Bookings page.';
                         statusBox.className = 'rounded-lg px-4 py-3 text-sm bg-green-100 text-green-700';
                         statusBox.classList.remove('hidden');
-                        if (window.AnyVenueToast) {
-                            window.AnyVenueToast.show({
-                                type: 'success',
-                                title: 'Booking confirmed',
-                                message: successMessage,
-                            });
-                        }
                         fetchAvailability(dateInput.value);
                     } else {
                         const message = data.error || 'We could not complete your booking. Please try another time slot.';
                         statusBox.textContent = message;
                         statusBox.className = 'rounded-lg px-4 py-3 text-sm bg-red-100 text-red-700';
                         statusBox.classList.remove('hidden');
-                        if (window.AnyVenueToast) {
-                            window.AnyVenueToast.show({
-                                type: 'error',
-                                title: 'Booking failed',
-                                message,
-                            });
-                        }
                     }
                 })
                 .catch(() => {
-                    const errorMessage = 'An unexpected error occurred. Please try again later.';
-                    statusBox.textContent = errorMessage;
+                    statusBox.textContent = 'An unexpected error occurred. Please try again later.';
                     statusBox.className = 'rounded-lg px-4 py-3 text-sm bg-red-100 text-red-700';
                     statusBox.classList.remove('hidden');
-                    if (window.AnyVenueToast) {
-                        window.AnyVenueToast.show({
-                            type: 'error',
-                            title: 'Network error',
-                            message: errorMessage,
-                        });
-                    }
                 })
                 .finally(() => {
                     submitButton.disabled = false;
@@ -637,17 +595,7 @@
             }
         });
         if (refreshButton) {
-            refreshButton.addEventListener('click', () => {
-                fetchAvailability(dateInput.value);
-                if (window.AnyVenueToast) {
-                    window.AnyVenueToast.show({
-                        type: 'info',
-                        title: 'Availability updated',
-                        message: 'We refreshed the available slots for your selected date.',
-                        timeout: 3000,
-                    });
-                }
-            });
+            refreshButton.addEventListener('click', () => fetchAvailability(dateInput.value));
         }
         submitButton.addEventListener('click', submitBooking);
 

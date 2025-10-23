@@ -13,7 +13,6 @@
             <a href="#booking" class="nav-link text-base text-white/80 hover:text-white transition-colors duration-300">Booking</a>
             <a href="#event" class="nav-link text-base text-white/80 hover:text-white transition-colors duration-300">Event</a>
             {% if user.is_authenticated %}
-            <a href="{% url 'account:profile_dashboard' %}" class="nav-link text-base text-white/80 hover:text-white transition-colors duration-300">Profile</a>
             <a href="{% url 'booking:user_bookings' %}" class="nav-link text-base text-white/80 hover:text-white transition-colors duration-300">My Bookings</a>
             {% endif %}
         </div>
